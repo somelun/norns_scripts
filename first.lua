@@ -8,7 +8,7 @@
 --
 -- first turn on AUX reverb!
 
-engine.name = "TestSine"
+engine.name = "TestEngine"
 
 function init()
   sound = 1
