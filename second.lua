@@ -2,47 +2,73 @@
 -- code exercise
 -- ways of seeing
 
-engine.name = "PolySub"
+engine.name = "PolyPerc"
 
 function init()
-  level = 3
-  number = 84
-  mode = 0
+  engine.release(3)
+  notes = {}
+  selected = {}
+  
+  for m = 1, 5 do
+    notes[m] = {}
+    selected[m] = {}
+    for n = 1, 5 do
+      notes[m][n] = 55 * 2^((m * 12 + n * 2) / 12)
+      selected[m][n] = false
+    end
+  end
+  light = 0
+  number = 3
 end
 
 function redraw()
   screen.clear()
-  if mode == 0 then
-    screen.level(level)
-    screen.font_face(10)
-    screen.font_size(20)
-    screen.move(0,50)
-    screen.text("number: " .. number)
-    screen.update()
-  elseif mode == 1 then
-    screen.move(0,20)
-    screen.text("WILD")
-    screen.aa(1)
-    screen.line_width(2)
-    screen.move(60,30)
-    screen.line(80,40)
-    screen.line(90,10)
-    screen.close()
-    screen.stroke()
-    screen.update()
+  for m = 1, 5 do
+    for n = 1, 5 do
+      screen.rect(0.5 + m * 9, 0.5 + n * 9, 6, 6) -- (x,y,width,height)
+      l = 2
+      if selected[m][n] then
+        l = l + 3 + light
+      end
+      screen.level(l)
+      screen.stroke()
+    end
   end
+  screen.move(10, 60)
+  screen.text(number)
+  screen.update()
 end
 
 function key(n,z)
-  if n == 3 then
-    mode = z
-  else
-    level = 3 + z * 12
+  if n == 2 and z == 1 then
+    for x = 1, 5 do
+      for y = 1, 5 do
+        selected[x][y] = false
+      end
+    end
+    for i = 1,number do
+      selected[math.random(5)][math.random(5)] = true
+    end
+  elseif n == 3 then
+    if z == 1 then
+      for x = 1, 5 do
+        for y = 1, 5 do
+          if selected[x][y] then
+            engine.hz(notes[x][y])
+          end
+        end
+      end
+      light = 7
+    elseif z == 0 then
+      light = 0
+    end
   end
   redraw()
 end
 
 function enc(n,d)
-  number = number + d
+  if n == 3 then
+    number = util.clamp(number + d, 1, 4)
+  end
   redraw()
 end
